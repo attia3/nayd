@@ -164,3 +164,19 @@ source("R/04_disagg_units_yield_safe.R")
 source("R/05_cluster_units_prod_zones.R")
 source("R/06_process_county_year.R")
 source("R/08_run_disagg_clustering.R")
+
+library(NAYD)
+
+nass_cotton <- read.csv(system.file("extdata", "nass_demo_cotton.csv", package = "NAYD"))
+tx_cnties   <- sf::st_read(system.file("extdata", "tx_counties_demo.gpkg", package = "NAYD"))
+
+compute_weights_batch(
+  nass_df     = nass_cotton,
+  years       = 2018:2020,
+  counties_sf = tx_cnties,
+  crop_name   = "Cotton",
+  crop_code   = 2,
+  sensor      = "Landsat",
+  season_start = "06-01",
+  season_end   = "09-30"
+)
