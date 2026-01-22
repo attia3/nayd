@@ -38,17 +38,21 @@ process_county_year <- function(
     nass_area_ha,
     nass_yield_kg_ha,
     county_name,
+    crop_name,
     year_val,
     beta = NULL,
-    min_y_frac = NULL,
-    max_y_frac = NULL,
-    min_abs_dynamic = NULL 
+    min_frac = NULL,
+    max_frac = NULL,
+    # absolute crop-specific caps
+    y_min_crop = NULL,   # e.g. cotton floor
+    y_max_crop = NULL,  # e.g. cotton ceiling
+    min_abs  = NULL       # legacy absolute floor
 ) {
   # crop/mask raster to county boundary just to be safe
   
   w_norm_orig <- terra::project(w_norm_orig,"EPSG:5070",method = "bilinear")
   county_geom <- sf::st_transform(county_geom, crs = terra::crs(w_norm_orig))
-
+  
   w_norm_crop <- terra::crop(w_norm_orig, terra::vect(county_geom))
   w_norm_crop <- terra::mask(w_norm_crop, terra::vect(county_geom))
   
@@ -72,8 +76,8 @@ process_county_year <- function(
   )
   
   harvest_units_sf <- prune_harvest_units_by_weight(harv$harvest_units_sf,
-                                                    keep_cumw = 0.95,  # tune 0.90–0.98
-                                                    min_units = 1)
+                                                    nass_harvest_area_ha = nass_area_ha,  
+                                                    min_units = 2)
   # w_cap <- harv$w_cap  # available if you want to save the raster
   
   # step 4: disaggregate NASS yield into each harvested unit (safe version)
@@ -85,10 +89,14 @@ process_county_year <- function(
     county           = county_name,
     year             = year_val,
     beta             = beta,
+    crop             = crop_name,
     to_crs           = "EPSG:4326",
-    min_frac         = min_y_frac,
-    max_frac         = max_y_frac,
-    min_abs          = min_abs_dynamic
+    min_frac         = min_frac,
+    max_frac         = max_frac,
+    # absolute crop-specific caps
+    y_min_crop = y_min_crop,   # e.g. cotton floor
+    y_max_crop = y_max_crop,  # e.g. cotton ceiling
+    min_abs          = min_abs
   )
   
   units_with_yield <- dis$units_with_yield
@@ -161,8 +169,8 @@ process_county_year <- function(
       clusters_table = clusters_table_out
     ),
     info = list(
-    county   = county_name,
-    year     = as.integer(year_val))
+      county   = county_name,
+      year     = as.integer(year_val))
   )
   
 }
