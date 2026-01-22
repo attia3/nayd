@@ -141,7 +141,7 @@ rgee::ee_Initialize(drive = TRUE)
 # (see data/README_data.md)
 
 # 3. Compute weights (optional, precompute)
-source("R/02_get_weights_county_year.R")
+source("R/02_build_spatial_weights.R")
 source("R/07_compute_weights_batch.R")
 compute_weights_batch(...)
 
