@@ -412,7 +412,7 @@ get_weights_for_county_year(county_sf = county_sf,
                             NASS_planted_area_ha = nass_df$area_planted_ha[(nass_df$year %in% 2021 & nass_df$county == norm_county(county_name))],
                             NASS_harvest_area_ha = nass_df$area_harvested_ha[(nass_df$year %in% 2021 & nass_df$county == norm_county(county_name))], 
                             lower_thresh = 0.6, upper_thresh = 2, area_buffer_frac = 0.05, 
-                            cdl_dir="C:/NAYD/inst/extdata", cache_dir="C:/NAYD/inst/extdata")
+                            cdl_dir="C:/NAYD/inst/extdata", cache_dir="Path_to_outPut_dir")
 
 
 
