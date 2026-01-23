@@ -1,6 +1,10 @@
 NASS-anchored-Yield-Disaggregation-Workflow (NAYD)
 
+library(remotes)
+# or
+library(devtools)
 
+install_github("attia3/NASS-anchored-Yield-Disaggregation-Workflow-NAYD")
 
 This repository provides an R workflow to disaggregate official, coarse-scale yield statistics (e.g. USDA NASS county yields) to field-scale “harvest units” using a combination of: land-cover / crop-type rasters (e.g. USDA Cropland Data Layer), remote-sensing metrics (NDVI, ET) from Google Earth Engine, and reported area and yield for each administrative unit. The code can be applied to any crop and region where equivalent inputs are available. In the documentation and examples we demonstrate the workflow using winter wheat and cotton in Texas, but the methods are not limited to these crops or locations.
 
