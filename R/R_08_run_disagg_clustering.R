@@ -1,6 +1,6 @@
-#' Run NAYD disaggregation + clustering for multiple counties and years
+#' Run NAYD disaggregation and clustering for multiple counties and years
 #'
-#' This is a high-level batch wrapper around [process_county_year()] that:
+#' This is a high-level batch wrapper around `process_county_year()` that:
 #' \enumerate{
 #'   \item reads cached weight rasters for each county–year,
 #'   \item segments harvest units and disaggregates NASS yields,
@@ -8,32 +8,41 @@
 #'   \item returns a stacked table of cluster-level yields.
 #' }
 #'
-#' It assumes weight rasters have already been created by
-#' [get_weights_for_county_year()] and written via `.cache_path("weight", ...)`.
+#' It assumes that weight rasters have already been created by
+#' `get_weights_for_county_year()` and written via
+#' `.cache_path("weight", ...)`.
 #'
 #' @param years Integer vector of years to process.
-#' @param counties Character vector of county names (as in the shapefile).
-#' @param nass_table `data.frame` with at least columns
-#'   `county`, `year`, `area_harvested_ha`, `yield_kg_ha`.
-#'   County names should already be normalized with [norm_county()].
-#' @param counties_sf `sf` object with county polygons and a `COUNTY` column
-#'   matching the (unnormalized) county names used in `counties`.
-#' @param crop_name Character crop label used in `.cache_path()` and in
-#'   [disagg_units_yield()] (e.g. `"winter wheat"`, `"cotton"`).
-#' @param sensor Character sensor tag used in `.cache_path()`, e.g. `"LANDSAT"`.
-#' @param betas Numeric vector of beta exponents to test.
-#' @param cluster_dist_m Maximum complete-linkage distance (in meters) when
-#'   clustering units into production zones (passed to [cluster_units_5km()]).
-#' @param max_field_ha_thresh, tile_target_ha, min_field_ha, max_field_ha_final
-#'   Segmentation / tiling parameters passed to [segment_fields_diag()].
+#' @param counties Character vector of county names (as they appear in
+#'   `counties_sf$COUNTY`).
+#' @param nass_table A data frame with at least the columns
+#'   `county`, `year`, `area_harvested_ha`, and `yield_kg_ha`. County names
+#'   should already be normalised in the same way used when creating the
+#'   weight rasters.
+#' @param counties_sf An `sf` object with county polygons and a `COUNTY`
+#'   column matching the (unnormalised) county names used in `counties`.
+#' @param crop_name Character crop label used when constructing cache paths
+#'   (e.g., `"winter wheat"`, `"cotton"`).
+#' @param sensor Character sensor tag used when constructing cache paths
+#'   (e.g., `"LANDSAT"`).
+#' @param betas Numeric vector of beta exponents to evaluate.
+#' @param cluster_dist_m Maximum complete-linkage distance (in metres) used
+#'   when clustering units into production zones.
+#' @param max_field_ha_thresh,tile_target_ha,min_field_ha,max_field_ha_final
+#'   Segmentation and tiling parameters passed on to `segment_fields_diag()`.
 #' @param min_frac,max_frac Optional relative yield bounds passed through to
-#'   [disagg_units_yield()]. Use `NULL` to rely purely on crop-specific caps.
-#' @param y_min_crop,y_max_crop,min_abs Optional crop-specific caps passed
-#'   to [disagg_units_yield()]. If `NULL`, defaults are chosen by crop.
+#'   `disagg_units_yield_safe()`. Use `NULL` to rely purely on crop-specific
+#'   caps.
+#' @param y_min_crop,y_max_crop,min_abs Optional crop-specific caps passed to
+#'   `disagg_units_yield_safe()`. If `NULL`, defaults are chosen internally
+#'   based on the crop.
 #'
-#' @return A tibble with one row per cluster–county–year–beta, containing
-#'   cluster centroid, area, production, yield, and NASS reference columns.
+#' @return A tibble with one row per cluster–county–year–beta combination,
+#'   containing cluster centroid coordinates, area, production, yield, and the
+#'   corresponding NASS reference area and yield.
+#'
 #' @export
+
 run_disagg_clustering_batch <- function(
     years,
     counties,

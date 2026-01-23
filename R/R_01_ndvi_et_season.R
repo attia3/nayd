@@ -17,7 +17,10 @@
 
 
 
-library(rgee)
+# if (!requireNamespace("rgee", quietly = TRUE)) {
+#   stop("NAYD::<fn>() requires 'rgee'. Install it first.", call. = FALSE)
+# }
+
 
 # --- Cloud/QA masks ----
 mask_landsat_c2_sr <- function(img) {

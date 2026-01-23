@@ -352,3 +352,67 @@ seg\_df\_ww <- run\_disagg\_clustering\_batch(
 
 )
 
+# Ex 1 building weight layer 
+
+library(NAYD)
+library(sf)
+library(dplyr)
+library(purrr)
+library(units)
+library(stats)  # hclust, cutree
+library(terra)
+library(sf)
+library(mapview)
+library(dplyr)
+library(data.table)
+library(stringr)
+library(terra)
+library(scales)
+library(sf)
+library(dplyr)
+library(ggplot2)
+library(ggspatial)
+library(patchwork)
+library(stringr)
+library(rlang)
+library(viridisLite) # palettes
+library(cowplot)
+library(viridis)
+library(readxl)
+
+# 
+#- the correct order here 
+Sys.setenv(
+  RETICULATE_PYTHON = "C:/Users/ahmed.attia/AppData/Local/r-miniconda/envs/rgee311/python.exe"
+)
+library(reticulate)
+py_config()
+library(rgee)
+ee_Initialize()
+ee_Authenticate()
+
+nass_csv <- "C:/Users/ahmed.attia/OneDrive - Texas A&M AgriLife/ML_study/SpatialData/CSV/TX_CO_PLAN_HARV_Y.csv"  # <-- update
+nass_df <- read.csv(nass_csv)
+
+season_start <- "06-01"
+season_end   <- "09-30"
+crop_code <- c(2)
+crop_name <- "Cotton"
+CRS_TARGET  <- "EPSG:3857"
+
+THP_shp <- st_read(system.file("extdata", "tx_counties_demo.gpkg", package = "NAYD"), quiet = TRUE) |> st_make_valid() |> st_transform(4326)
+county_sf <- THP_shp[THP_shp$COUNTY == "Gaines",]
+
+
+get_weights_for_county_year(county_sf = county_sf,
+                            county_name = "Gaines", sensor="LANDSAT", year=2021, 
+                            season_start, 
+                            season_end, CRS_TARGET, crop_code, crop_name, 
+                            a_ndvi=0.7, a_et=0.3, 
+                            NASS_planted_area_ha = nass_df$area_planted_ha[(nass_df$year %in% 2021 & nass_df$county == norm_county(county_name))],
+                            NASS_harvest_area_ha = nass_df$area_harvested_ha[(nass_df$year %in% 2021 & nass_df$county == norm_county(county_name))], 
+                            lower_thresh = 0.6, upper_thresh = 2, area_buffer_frac = 0.05, 
+                            cdl_dir="C:/NAYD/inst/extdata", cache_dir="C:/NAYD/inst/extdata")
+
+
+

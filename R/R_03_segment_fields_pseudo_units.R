@@ -296,7 +296,8 @@ segment_fields_diag <- function(w_smooth,
 
 #' Build capped / renormalized harvest units
 #'
-#' @param all_units_sf sf with cols [unit_id, unit_area_ha, unit_w_sum, geometry]
+#' @param all_units_sf An sf object with columns
+#'   `unit_id`, `unit_area_ha`, `unit_w_sum`, and `geometry`.
 #' @param w_smooth SpatRaster of weights (same CRS as units)
 #' @param target_ha numeric, NASS harvested hectares target for this county-year
 #'

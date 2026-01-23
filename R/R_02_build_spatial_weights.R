@@ -27,77 +27,6 @@
 
 # ----------------------------------------------------------------------
 # small utilities
-# ----------------------------------------------------------------------
-
-`%||%` <- function(a, b) {
-  if (is.null(a)) b else a
-}
-
-norm_sensor <- function(x_cot, new_min = 0.01, new_max = 1) {
-  r <- terra::global(x_cot, c("min", "max"), na.rm = TRUE)
-  x_min <- as.numeric(r[1, "min"])
-  x_max <- as.numeric(r[1, "max"])
-  
-  if (!is.finite(x_min) || !is.finite(x_max) || x_max <= x_min) {
-    x_norm <- x_cot * NA
-    names(x_norm) <- "weight"
-    return(x_norm)
-  }
-  
-  x_s <- (x_cot - x_min) / (x_max - x_min)
-  x_norm <- x_s * (new_max - new_min) + new_min
-  names(x_norm) <- "weight"
-  x_norm
-}
-
-fmt_ha <- function(x) {
-  if (is.null(x) || is.na(x) || !is.finite(x)) return("NA")
-  format(round(as.numeric(x), 1), big.mark = ",")
-}
-
-fmt_pct <- function(x) {
-  if (!is.finite(x)) return("NA")
-  sprintf("%.1f%%", 100 * x)
-}
-
-.area_ha_bin <- function(binmask) {
-  if (is.null(binmask)) return(NA_real_)
-  a <- terra::cellSize(binmask, unit = "m")
-  a <- terra::mask(a, binmask)
-  as.numeric(terra::global(a, "sum", na.rm = TRUE)) / 1e4
-}
-
-.sanitize_id <- function(x) {
-  x <- toupper(x)
-  x <- gsub("[^A-Z0-9]+", "_", x)
-  gsub("^_+|_+$", "", x)
-}
-
-nayd_cache_path <- function(cache_dir, kind, county, year, crop_name, sensor = NULL) {
-  stopifnot(kind %in% c("ndvi", "et", "weight"))
-  
-  subdir <- file.path(cache_dir, kind, .sanitize_id(crop_name))
-  dir.create(subdir, recursive = TRUE, showWarnings = FALSE)
-  
-  sensor_tag <- if (!is.null(sensor) && nzchar(sensor)) paste0("_", sensor) else ""
-  
-  file.path(
-    subdir,
-    sprintf(
-      "%s_%s_%d%s.tif",
-      kind,
-      .sanitize_id(county),
-      as.integer(year),
-      sensor_tag
-    )
-  )
-}
-
-rs_mode_for_year <- function(y) {
-  if (y >= 2008) "NDVI_ET"
-  else if (y > 1999) "NDVI_ET_2008mask"
-  else "NDVI_ONLY_2008mask"
-}
 
 # ----------------------------------------------------------------------
 # CDL-based crop mask builder (single county)
@@ -326,6 +255,15 @@ get_weights_for_county_year <- function(county_sf, county_name,
                                         cdl_dir,
                                         cache_dir) {
   stopifnot(is.character(county_name), length(county_name) == 1)
+  
+  # ---- runtime dependency check for rgee ----
+  if (!requireNamespace("rgee", quietly = TRUE)) {
+    stop(
+      "NAYD::get_weights_for_county_year() requires the 'rgee' package.\n",
+      "Please install it with install.packages('rgee') and configure Earth Engine.",
+      call. = FALSE
+    )
+  }
   
   # local alias for GEE handle
   ee <- rgee::ee

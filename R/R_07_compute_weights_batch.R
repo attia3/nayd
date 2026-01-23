@@ -9,6 +9,9 @@
 #' @param sensor character, e.g. "Landsat".
 #' @param season_start,season_end character "MM-DD".
 #' @param CRS_TARGET character CRS string for the template.
+#' @param lower_thresh Lower bound for CDL/NASS area ratio in mask QC.
+#' @param upper_thresh Upper bound for CDL/NASS area ratio in mask QC.
+#' @param area_buffer_frac Fractional buffer for NDVI eligibility area (e.g. 0.2).
 #' @export
 compute_weights_batch <- function(
     nass_df,
@@ -69,18 +72,18 @@ compute_weights_batch <- function(
           year                 = yr,
           season_start         = season_start,
           season_end           = season_end,
-          cdl_rast             = cdl_TX,
           CRS_TARGET           = CRS_TARGET,
           crop_code            = crop_code,
           crop_name            = crop_name,
-          a_ndvi               = 0.70,
-          a_et                 = 0.30,
-          NASS_planed_area_ha  = NASS_planted_ha,
+          a_ndvi               = 0.7,
+          a_et                 = 0.3,
+          NASS_planted_area_ha = NASS_planted_ha,   # fixed name
           NASS_harvest_area_ha = NASS_harvest_ha,
           lower_thresh         = lower_thresh,
           upper_thresh         = upper_thresh,
           area_buffer_frac     = area_buffer_frac,
-          pre2008_mask_strategy = "auto"
+          cdl_dir              = cdl_dir,           # must be defined in compute_weights_batch()
+          cache_dir            = cache_dir          # must be defined in compute_weights_batch()
         ),
         error = function(e) {
           message("– ERROR ", cname, " ", yr, ": ", conditionMessage(e))
