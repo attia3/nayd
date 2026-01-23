@@ -1,7 +1,7 @@
 NASS-anchored-Yield-Disaggregation-Workflow (NAYD)
 
 library(remotes)
-# or
+or
 library(devtools)
 
 install_github("attia3/NASS-anchored-Yield-Disaggregation-Workflow-NAYD")
