@@ -184,7 +184,8 @@ source("R/06\_process\_county\_year.R")
 
 source("R/08\_run\_disagg\_clustering.R")
 
-# step 1 building weight layer 
+#Working EX for cotton in Gaines County in 2021 in TX 
+#Step 1 building weight layer 
 
 library(NAYD)
 library(sf)
