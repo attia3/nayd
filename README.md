@@ -8,32 +8,13 @@ install_github("attia3/NASS-anchored-Yield-Disaggregation-Workflow-NAYD")
 
 This repository provides an R workflow to disaggregate official, coarse-scale yield statistics (e.g. USDA NASS county yields) to field-scale “harvest units” using a combination of: land-cover / crop-type rasters (e.g. USDA Cropland Data Layer), remote-sensing metrics (NDVI, ET) from Google Earth Engine, and reported area and yield for each administrative unit. The code can be applied to any crop and region where equivalent inputs are available. In the documentation and examples we demonstrate the workflow using winter wheat and cotton in Texas, but the methods are not limited to these crops or locations.
 
-\## Features
-Builds county- and crop-specific masks from USDA Cropland Data Layer (CDL) with consistency checks against NASS planted/harvested areas.
-
-Derives seasonal NDVI and ET composites from Landsat / OpenET.
-
-Computes pixel-level weights combining NDVI and ET.
-
-Segments fields and large pseudo-fields into harvest units with area constraints.
-
-Disaggregates NASS county yield across units using a beta-weighting scheme while preserving county means.
-
-Clusters harvest units into ~5–10 km production zones.
-
-Validates segmented yields against independent variety-testing trials.
-
-
-Features
+#Features
 
 Builds county- and crop-specific masks from USDA Cropland Data Layer (CDL) with consistency checks against NASS planted/harvested areas. Derives seasonal NDVI and ET composites from Landsat / OpenET. Computes pixel-level weights combining NDVI and ET. Segments fields and large pseudo-fields into harvest units with area constraints. Disaggregates NASS county yield across units using a beta-weighting scheme while preserving county means. Clusters harvest units into ~5–10 km production zones. Validates segmented yields against independent variety-testing trials. Repository structure
 
-
 R/01\_ndvi\_et\_season.R – NDVI/ET seasonal composites (rgee/OpenET).
 
-
 R/02\_build\_spatial\_weights.R – CDL mask + NDVI/ET weight generator.
-
 
 R/03\_segment\_fields\_pseudo\_units.R – field segmentation and tiling.
 
@@ -77,9 +58,7 @@ Builds county- and crop-specific masks from CDL Applies consistency checks again
 
 Derives seasonal NDVI and ET composites from Landsat / Sentinel-2 via Google Earth Engine / OpenET Normalizes NDVI and ET to \[0, 1] and combines them into a per-pixel weight surface Field segmentation / harvest units
 
-
 Segments the crop mask into contiguous “fields” Splits overly large fields into pseudo-fields using a regular grid Enforces minimum / maximum field-size constraints (e.g. 5–1000 ha) NASS-consistent yield disaggregation
-
 
 Scales field weights with a β-exponent to control contrast between high- and low-weight pixels Allocates NASS county yield to units in a way that: preserves the county mean yield (within numerical noise) respects crop-specific min / max yield caps avoids pathological extreme yields Clustering into production zones
 
@@ -89,12 +68,9 @@ Matches production-zone yields to independent variety-trial plots Supports evalu
 
 R/01\_ndvi\_et\_season.R Build seasonal NDVI and ET composites (via rgee + Google Earth Engine / OpenET).
 
-
 R/02\_build\_spatial\_weights.R
 
-
 Construct CDL masks Apply NASS area consistency checks Compute NDVI+ET pixel weights and normalize to 1 within each county / crop / year. R/03\_segment\_fields\_pseudo\_units.R Segment the weight raster into fields and pseudo-fields and compute per-unit weight and area.
-
 
 R/04\_disagg\_units\_yield\_safe.R Allocate NASS county yield to units with:
 
