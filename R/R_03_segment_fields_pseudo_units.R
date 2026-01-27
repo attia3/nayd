@@ -314,8 +314,8 @@ build_harvest_units <- function(all_units_sf, w_smooth, target_ha) {
   
   # rank by unit_w_sum (cotton strength) and compute cumulative area
   harvest_cands <- all_units_sf |>
-    dplyr::arrange(dplyr::desc(rlang::.data$unit_w_sum)) |>
-    dplyr::mutate(cum_area = cumsum(rlang::.data$unit_area_ha))
+    dplyr::arrange(dplyr::desc(unit_w_sum)) |>
+    dplyr::mutate(cum_area = cumsum(unit_area_ha))
   
   A_total  <- sum(harvest_cands$unit_area_ha, na.rm = TRUE)
   A_target <- min(target_ha, A_total)
