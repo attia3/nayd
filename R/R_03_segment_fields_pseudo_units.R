@@ -335,7 +335,7 @@ build_harvest_units <- function(all_units_sf, w_smooth, target_ha) {
   }
   
   harvest_units_sf <- all_units_sf |>
-    dplyr::filter(rlang::.data$unit_id %in% sel_units_full)
+    dplyr::filter(unit_id %in% sel_units_full)
   
   if (nrow(harvest_units_sf) == 0) {
     stop("No units selected for harvest subset; check inputs/target_ha.")
@@ -362,8 +362,8 @@ build_harvest_units <- function(all_units_sf, w_smooth, target_ha) {
   harvest_units_sf$unit_w_sum_cap <- harvest_units_sf$unit_w_sum_cap / total_cap
   
   harvest_units_sf <- harvest_units_sf |>
-    dplyr::mutate(unit_w_sum = .data$unit_w_sum_cap) |>
-    dplyr::select(-.data$unit_w_sum_cap)
+    dplyr::mutate(unit_w_sum = unit_w_sum_cap) |>
+    dplyr::select(-unit_w_sum_cap)
   
   list(
     harvest_units_sf = harvest_units_sf,
