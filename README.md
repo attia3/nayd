@@ -1,14 +1,14 @@
-NASS-anchored-Yield-Disaggregation-Workflow (NAYD)
+## NASS-anchored-Yield-Disaggregation-Workflow (NAYD)
 
 library(remotes)
 or
 library(devtools)
 
-install_github("attia3/NASS-anchored-Yield-Disaggregation-Workflow-NAYD")
+**install_github("attia3/NASS-anchored-Yield-Disaggregation-Workflow-NAYD")**
 
 This repository provides an R workflow to disaggregate official, coarse-scale yield statistics (e.g. USDA NASS county yields) to field-scale “harvest units” using a combination of: land-cover / crop-type rasters (e.g. USDA Cropland Data Layer), remote-sensing metrics (NDVI, ET) from Google Earth Engine, and reported area and yield for each administrative unit. The code can be applied to any crop and region where equivalent inputs are available. In the documentation and examples we demonstrate the workflow using winter wheat and cotton in Texas, but the methods are not limited to these crops or locations.
 
-#Features
+## Features
 
 Builds county- and crop-specific masks from USDA Cropland Data Layer (CDL) with consistency checks against NASS planted/harvested areas. Derives seasonal NDVI and ET composites from Landsat / OpenET. Computes pixel-level weights combining NDVI and ET. Segments fields and large pseudo-fields into harvest units with area constraints. Disaggregates NASS county yield across units using a beta-weighting scheme while preserving county means. Clusters harvest units into ~5–10 km production zones. Validates segmented yields against independent variety-testing trials. Repository structure
 
@@ -28,7 +28,7 @@ R/07\_compute\_weights\_batch.R – batch weights for many counties/years.
 
 R/08\_run\_disagg\_clustering.R – main loop + segmentation + export.
 
-\## Requirements
+## Requirements
 
 R >= 4.3
 
@@ -44,24 +44,13 @@ CDL mosaics (30 m) for 2008–present, in EPSG:5070
 
 NASS county-level planted/harvested area and yield tables
 
-\## Main features
-
-Requirements
-
-R >= 4.3 Packages: sf, terra, dplyr, data.table, ggplot2, rgee, reticulate, readxl, stringr, purrr, viridis, patchwork, etc. Google Earth Engine account and rgee configured. Access to: Texas county boundary shapefile (EPSG:4326) CDL mosaics (30 m) for 2008–present, in EPSG:5070 NASS county-level planted/harvested area and yield tables
-
-Main features
-
+## Main features
 Crop-specific masks from CDL
 
 Builds county- and crop-specific masks from CDL Applies consistency checks against NASS planted / harvested area Handles pre-2008 years via multi-year unions / intersections when CDL is noisy Remote-sensing-based weights
-
 Derives seasonal NDVI and ET composites from Landsat / Sentinel-2 via Google Earth Engine / OpenET Normalizes NDVI and ET to \[0, 1] and combines them into a per-pixel weight surface Field segmentation / harvest units
-
 Segments the crop mask into contiguous “fields” Splits overly large fields into pseudo-fields using a regular grid Enforces minimum / maximum field-size constraints (e.g. 5–1000 ha) NASS-consistent yield disaggregation
-
 Scales field weights with a β-exponent to control contrast between high- and low-weight pixels Allocates NASS county yield to units in a way that: preserves the county mean yield (within numerical noise) respects crop-specific min / max yield caps avoids pathological extreme yields Clustering into production zones
-
 Clusters nearby harvest units (e.g. ~5–10 km radius) into production zones Returns cluster-level mean yield and area for mapping and downstream modelling Validation against variety trials
 
 Matches production-zone yields to independent variety-trial plots Supports evaluation across multiple radii and β values Repository structure A typical workflow uses the scripts in R/ in this order:
@@ -82,7 +71,7 @@ takes a pre-computed weight raster for one county-year, segments to units, disag
 
 R/08\_run\_disagg\_clustering.R Main driver script: loops over counties × years, calls process\_county\_year(), and writes out cluster-level yield tables + diagnostic figures.
 
-\## Demo data (no-Earth-Engine example)
+## Demo data (no-Earth-Engine example)
 
 The repository ships a small demo dataset under inst/extdata/ to allow testing the workflow without running Google Earth Engine:
 
@@ -102,7 +91,7 @@ inst/extdata/CO\_dis-yield.pdf Example figure: disaggregated cotton yield in Gai
 
 These files are only for illustration and unit tests; they are not intended as an authoritative dataset.
 
-\## Quick start
+## Quick start
 
 0\. Install dependencies
 
@@ -160,8 +149,8 @@ source("R/06\_process\_county\_year.R")
 
 source("R/08\_run\_disagg\_clustering.R")
 
-#Working EX for cotton in Gaines County in 2021 in TX 
-#Step 1 building weight layer 
+## Working EX for cotton in Gaines County in 2021 in TX 
+**Step 1 building weight layer** 
 
 library(NAYD)
 library(sf)
@@ -212,7 +201,7 @@ CRS_TARGET  <- "EPSG:3857"
 THP_shp <- st_read(system.file("extdata", "tx_counties_demo.gpkg", package = "NAYD"), quiet = TRUE) |> st_make_valid() |> st_transform(4326)
 county_sf <- THP_shp[THP_shp$COUNTY == "Gaines",]
 
-#the CDL_2021_48.tif is clipped CDL layer for Gaines county in 2021. 
+**the CDL_2021_48.tif is clipped CDL layer for Gaines county in 2021.** 
 
 get_weights_for_county_year(county_sf = county_sf,
                             county_name = "Gaines", sensor="LANDSAT", year=2021, 
@@ -224,5 +213,30 @@ get_weights_for_county_year(county_sf = county_sf,
                             lower_thresh = 0.6, upper_thresh = 2, area_buffer_frac = 0.05, 
                             cdl_dir="C:/NAYD/inst/extdata", cache_dir="Path_to_outPut_dir")
 
+
+
+**step 2 disag yield and produce clusters** 
+
+w_norm_orig <- terra::rast("Path_to_outPut_dir/weight_GAINES_2021_LANDSAT.tif") 
+out <- process_county_year(
+    w_norm_orig = w_norm_orig,
+    county_geom = county_sf,
+    max_field_ha_thresh = 800,
+    tile_target_ha = 200,
+    min_field_ha = 5,
+    max_field_ha_final = 1000,
+    cluster_dist_m = 10000,
+    nass_area_ha = nass_df$area_harvested_ha[(nass_df$year %in% 2021 & nass_df$county == norm_county(county_name))] ,
+    nass_yield_kg_ha = nass_df$yield_kg_ha[(nass_df$year %in% 2021 & nass_df$county == norm_county(county_name))],
+    county_name = "Gaines",
+    crop_name = "Cotton",
+    year_val = 2021,
+    beta = 1.2,
+    min_frac  = NULL,
+    max_frac  = NULL,
+    y_min_crop = 100, # optional
+    y_max_crop = 4000, # optional 
+    min_abs    = NULL
+)
 
 
