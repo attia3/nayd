@@ -202,6 +202,7 @@ THP_shp <- st_read(system.file("extdata", "tx_counties_demo.gpkg", package = "NA
 county_sf <- THP_shp[THP_shp$COUNTY == "Gaines",]
 
 **the CDL_2021_48.tif is clipped CDL layer for Gaines county in 2021.** 
+**CDL layer must be provided in the format CDL_YYYY_48.tif.** 
 
 get_weights_for_county_year(county_sf = county_sf,
                             county_name = "Gaines", sensor="LANDSAT", year=2021, 
@@ -217,7 +218,7 @@ get_weights_for_county_year(county_sf = county_sf,
 
 **step 2 disag yield and produce clusters** 
 
-w_norm_orig <- terra::rast("Path_to_outPut_dir/weight_GAINES_2021_LANDSAT.tif") 
+w_norm_orig <- terra::rast("Path_to_outPut_dir/weight_GAINES_2021_LANDSAT.tif") # weight layer produced by step 1
 out <- process_county_year(
     w_norm_orig = w_norm_orig,
     county_geom = county_sf,
